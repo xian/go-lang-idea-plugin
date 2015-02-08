@@ -165,19 +165,48 @@ public class GoReference extends PsiPolyVariantReferenceBase<GoReferenceExpressi
     PsiFile file = myElement.getContainingFile();
     if (!(file instanceof GoFile)) return false;
     ResolveState state = ResolveState.initial();
-    GoReferenceExpressionBase qualifier = myElement.getQualifier();
-    return qualifier != null
-           ? processQualifierExpression(((GoFile)file), qualifier, processor, state)
-           : processUnqualifiedResolve(((GoFile)file), processor, state, true);
+    //GoReferenceExpressionBase qualifier = myElement.getQualifier();
+
+    PsiElement parent = myElement.getParent();
+    if (notSelector(myElement) || parent instanceof GoSelectorExpr && notSelector(parent) && ((GoSelectorExpr)parent).getLeft() == myElement) {
+      return processUnqualifiedResolve(((GoFile)file), processor, state, true);
+    }
+    else if (parent instanceof GoSelectorExpr) {
+      if (((GoSelectorExpr)parent).getRight() == myElement) {
+        return processQualifierExpression(((GoFile)file), ((GoSelectorExpr)parent).getLeft(), processor, state);
+      }
+      else {
+        PsiElement grand = parent.getParent();
+        if (grand instanceof GoSelectorExpr && ((GoSelectorExpr)grand).getRight() == parent) {
+          return processQualifierExpression(((GoFile)file), ((GoSelectorExpr)grand).getLeft(), processor, state);
+          
+        }
+      }
+    }
+    
+
+
+    return false;
+    //return qualifier != null
+    //       ? processQualifierExpression(((GoFile)file), qualifier, processor, state)
+    //       : processUnqualifiedResolve(((GoFile)file), processor, state, true);
+  }
+
+  private static boolean notSelector(@NotNull PsiElement parent) {
+    return !(parent.getParent() instanceof GoSelectorExpr);
   }
 
   private boolean processQualifierExpression(@NotNull GoFile file,
-                                             @NotNull GoReferenceExpressionBase qualifier,
+                                             @NotNull GoExpression qualifier,
                                              @NotNull MyScopeProcessor processor,
                                              @NotNull ResolveState state) {
     PsiReference reference = qualifier.getReference();
     PsiElement target = reference != null ? reference.resolve() : null;
-    if (target == null || target == qualifier) return false;
+    if (target == null || target == qualifier) {
+      GoType type = qualifier.getGoType();
+      if (type != null) if (!processGoType(type, processor, state)) return false;
+      return false;
+    }
     if (target instanceof GoImportSpec) target = ((GoImportSpec)target).getImportString().resolve();
     if (target instanceof PsiDirectory && !processDirectory((PsiDirectory)target, file, null, processor, state, false)) return false;
     if (target instanceof GoTypeOwner) {
@@ -191,6 +220,7 @@ public class GoReference extends PsiPolyVariantReferenceBase<GoReferenceExpressi
         if (caseType != null && !processGoType(caseType, processor, state)) return false;
       }
     }
+    
     return true;
   }
 

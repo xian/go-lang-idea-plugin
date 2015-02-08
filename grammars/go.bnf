@@ -65,7 +65,7 @@
   SEMICOLON_SYNTHETIC  = '<NL>'
   TYPE_                = 'type'
 
-  extends("(Or|Add|Conversion|Mul)Expr")=BinaryExpr
+  extends("(Or|Add|Conversion|Mul|Selector)Expr")=BinaryExpr
   extends(".*(Expr|Literal|Lit|OperandName)")=Expression
 
   implements("(Type|Import)Spec|(Var|Const|Param|(Anonymous)?Field|Label)Definition|Receiver")="com.goide.psi.GoNamedElement"
@@ -315,10 +315,11 @@ Expression ::=
   | MulExpr
   | UnaryExpr
   | ConversionExpr
+  | CallExpr
   | MaxGroup
   | ParenthesesExpr {methods=[getGoType] implements="com.goide.psi.GoTypeOwner"}
 
-fake BinaryExpr ::=
+fake BinaryExpr ::= Expression+ {methods=[left="Expression[0]" right="Expression[1]"]}
 
 OrExpr ::= Expression '||' Expression
 AndExpr ::= Expression '&&' Expression
@@ -332,12 +333,13 @@ BuiltinCallExpr ::= ReferenceExpression <<isBuiltin>> '(' [ BuiltinArgs ','? ] '
 BuiltinArgs ::= Type [ ',' ExpressionList '...'? ] | ExpressionList '...'?
 
 private MaxGroup ::=
-    CompositeLit
-  | OperandName
+    //OperandName
+   CompositeLit
+  | ReferenceExpression
   | BuiltinCallExpr
-  | CallExpr
-  | TypeAssertionExpr
   | SelectorExpr
+  //| CallExpr
+  | TypeAssertionExpr
   | MethodExpr
   | SliceExpr
   | IndexExpr
@@ -352,7 +354,7 @@ private unary_op ::= '+' | '-' | '!' | '^' | '*' | '&' | '<-'
 
 MethodExpr ::= ReceiverType '.' identifier
 ReceiverType ::= TypeName | '(' '*' TypeName ')' | '(' ReceiverType ')'
-SelectorExpr ::= Expression '.' !('(' 'type') Expression
+SelectorExpr ::= Expression '.' !('(' 'type') Expression {rightAssociative=true}
 IndexExpr ::= Expression '[' IndexExprBody ']'
 SliceExpr ::= Expression '[' SliceExprBody ']'
 private IndexExprBody ::= Expression
