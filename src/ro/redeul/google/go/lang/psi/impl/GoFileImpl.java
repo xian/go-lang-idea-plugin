@@ -206,6 +206,8 @@ public class GoFileImpl extends PsiFileBase implements GoFile {
         while (child != null) {
             if (child instanceof GoPsiElement) {
                 ((GoPsiElement) child).accept(visitor);
+            } else {
+                child.accept(visitor);
             }
 
             child = child.getNextSibling();

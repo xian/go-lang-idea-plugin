@@ -1,6 +1,7 @@
 package ro.redeul.google.go.lang.psi.visitors;
 
 import com.intellij.openapi.progress.ProgressIndicatorProvider;
+import com.intellij.psi.PsiElementVisitor;
 import ro.redeul.google.go.lang.psi.GoFile;
 import ro.redeul.google.go.lang.psi.GoPackage;
 import ro.redeul.google.go.lang.psi.GoParenthesizedExprOrType;
@@ -46,7 +47,7 @@ import java.math.BigInteger;
  * Date: Aug 30, 2010
  * Time: 8:10:51 PM
  */
-public class GoElementVisitor  {
+public class GoElementVisitor extends PsiElementVisitor {
 
     public void visitElement(GoPsiElement element) {
         ProgressIndicatorProvider.checkCanceled();

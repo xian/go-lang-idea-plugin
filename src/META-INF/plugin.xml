@@ -203,9 +203,16 @@
         <group id="Go.Tools" popup="true" text="Go Tools"
                description="Go tools support" icon="/icons/go_13x13.png" class="ro.redeul.google.go.actions.NewGoGroup">
 
+            <action id="Go.Away"
+                    class="ro.redeul.google.go.actions.GoAwayAction"
+                    text="Go Away!"
+                    description="zzzzz">
+                <keyboard-shortcut first-keystroke="ctrl alt shift j" keymap="$default"/>
+            </action>
+
             <action id="Go.Fmt.FileRunner"
                     class="ro.redeul.google.go.ide.actions.GoFmtFileRunner"
-                    text="go fmt file" description="Format current file with go fmt"
+                    text="go fmt filez" description="Format current file with go fmt"
                     icon="/icons/go_13x13.png">
                 <keyboard-shortcut first-keystroke="ctrl alt shift f" keymap="$default"/>
             </action>

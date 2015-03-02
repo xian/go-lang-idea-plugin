@@ -60,6 +60,8 @@ public class GoPsiElementBase extends ASTWrapperPsiElement
         while (child != null) {
             if (child instanceof GoPsiElement) {
                 ((GoPsiElement) child).accept(visitor);
+            } else {
+                child.accept(visitor);
             }
 
             child = child.getNextSibling();
